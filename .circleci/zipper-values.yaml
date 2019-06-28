@@ -1,0 +1,47 @@
+# Default values for cyber-dojo-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+fullnameOverride: "zipper"
+
+replicaCount: 1
+
+volumes:
+  - name: zipper-tmp-dir
+    emptyDir:
+      medium: Memory
+      sizeLimit: "64Mi"
+
+containers:
+  - name: zipper
+    image: cyberdojo/zipper
+    tag: ""
+    securityContext:
+      readOnlyRootFilesystem: true
+    volumeMounts:
+      - name: zipper-tmp-dir
+        mountPath: /tmp
+        readOnly: false
+
+    resources:
+      limits:
+       memory: 32Mi
+      requests:
+       memory: 32Mi
+    # livenessProbe:
+    #   path: /sha
+    #   port: 4567
+    # readinessProbe:
+    #   path: /ready?
+    #   port: 4567
+
+envFromSecret: {}
+
+nodeSelector: {}
+
+affinity: {}
+
+tolerations: []
+
+service:
+  port: 4567
