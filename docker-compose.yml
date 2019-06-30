@@ -49,9 +49,8 @@ services:
       - 4537:4537
     restart: 'no'
     tmpfs:
+      - /cyber-dojo:uid=19663,gid=65533
       - /tmp:mode=1777
-    volumes:
-      - ./test/data/cyber-dojo:/cyber-dojo:rw  
     depends_on:
       - mapper
 
