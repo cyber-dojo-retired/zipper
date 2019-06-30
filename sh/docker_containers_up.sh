@@ -1,23 +1,31 @@
 #!/bin/bash
 set -e
 
+ip_address()
+{
+  if [ -n "${DOCKER_MACHINE_NAME}" ]; then
+    docker-machine ip ${DOCKER_MACHINE_NAME}
+  else
+    echo localhost
+  fi
+}
+
+readonly IP_ADDRESS=$(ip_address)
+
 # - - - - - - - - - - - - - - - - - - - -
+
+readonly READY_FILENAME='/tmp/curl-ready-output'
 
 wait_until_ready()
 {
-  local name="${1}"
-  local port="${2}"
-  local max_tries=20
-  local cmd="curl --silent --fail --data '{}' -X GET http://localhost:${port}/sha"
-  cmd+=" > /dev/null 2>&1"
-
-  if [ ! -z ${DOCKER_MACHINE_NAME} ]; then
-    cmd="docker-machine ssh ${DOCKER_MACHINE_NAME} ${cmd}"
-  fi
+  local -r name="${1}"
+  local -r port="${2}"
+  local -r max_tries=20
   echo -n "Waiting until ${name} is ready"
-  while [ $(( max_tries -= 1 )) -ge 0 ] ; do
+  for _ in $(seq ${max_tries})
+  do
     echo -n '.'
-    if eval ${cmd} ; then
+    if ready ${port} ; then
       echo 'OK'
       return
     else
@@ -26,11 +34,58 @@ wait_until_ready()
   done
   echo 'FAIL'
   echo "${name} not ready after ${max_tries} tries"
+  if [ -f "${READY_FILENAME}" ]; then
+    echo "$(cat "${READY_FILENAME}")"
+  fi
   docker logs ${name}
   exit 1
 }
 
 # - - - - - - - - - - - - - - - - - - -
+
+ready()
+{
+  local -r port="${1}"
+  local -r path=ready?
+  local -r curl_cmd="curl --output ${READY_FILENAME} --silent --fail --data {} -X GET http://${IP_ADDRESS}:${port}/${path}"
+  rm -f "${READY_FILENAME}"
+  if ${curl_cmd} && [ "$(cat "${READY_FILENAME}")" = '{"ready?":true}' ]; then
+    true
+  else
+    false
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - -
+
+exit_unless_clean()
+{
+  local -r name="${1}"
+  local -r docker_log=$(docker logs "${name}")
+  local -r line_count=$(echo -n "${docker_log}" | grep -c '^')
+  echo -n "Checking ${name} started cleanly..."
+  if [ "${line_count}" == '3' ]; then
+    echo 'OK'
+  else
+    echo 'FAIL'
+    echo_docker_log "${name}" "${docker_log}"
+    exit 1
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - -
+
+echo_docker_log()
+{
+  local -r name="${1}"
+  local -r docker_log="${2}"
+  echo "[docker logs ${name}]"
+  echo "<docker_log>"
+  echo "${docker_log}"
+  echo "</docker_log>"
+}
+
+# - - - - - - - - - - - - - - - - - - - -
 
 wait_till_up()
 {
@@ -51,25 +106,6 @@ wait_till_up()
 
 # - - - - - - - - - - - - - - - - - - - -
 
-exit_unless_clean()
-{
-  local name="${1}"
-  local docker_logs=$(docker logs "${name}")
-  echo -n "Checking ${name} started cleanly..."
-  if [[ -z "${docker_logs}" ]]; then
-    echo 'OK'
-  else
-    echo 'FAIL'
-    echo "[docker logs ${name}] not empty on startup"
-    echo "<docker_logs>"
-    echo "${docker_logs}"
-    echo "</docker_logs>"
-    exit 1
-  fi
-}
-
-# - - - - - - - - - - - - - - - - - - - -
-
 readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
 
 docker-compose \
@@ -78,10 +114,8 @@ docker-compose \
   -d \
   --force-recreate
 
-readonly MY_NAME=zipper
+wait_until_ready  test-zipper-server 4587
+exit_unless_clean test-zipper-server
 
-wait_until_ready  "test-${MY_NAME}-server" 4587
-exit_unless_clean "test-${MY_NAME}-server"
-
-wait_till_up "test-${MY_NAME}-client"
-wait_till_up "test-${MY_NAME}-storer-server"
+wait_till_up test-zipper-client
+wait_till_up test-zipper-storer-server
