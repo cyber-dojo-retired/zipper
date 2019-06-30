@@ -104,6 +104,10 @@ class ExternalShellerTest < ZipperTestBase
     externals.shell
   end
 
+  def log
+    externals.log
+  end
+
   def shell_exec(command)
     @output, @exit_status = shell.exec(command)
   end

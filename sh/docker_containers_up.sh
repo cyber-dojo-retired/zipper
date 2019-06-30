@@ -114,9 +114,13 @@ docker-compose \
   -d \
   --force-recreate
 
+wait_until_ready  test-zipper-mapper 4547
+exit_unless_clean test-zipper-mapper
+
+wait_until_ready  test-zipper-saver  4537
+exit_unless_clean test-zipper-saver
+
 wait_until_ready  test-zipper-server 4587
 exit_unless_clean test-zipper-server
 
 wait_till_up test-zipper-client
-
-#wait_till_up test-zipper-storer-server

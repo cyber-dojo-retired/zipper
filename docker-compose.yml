@@ -11,11 +11,12 @@ services:
     init: true
     container_name: test-zipper-client
     read_only: true
-    tmpfs: /tmp
+    tmpfs:
+      - /tmp:mode=1777      
     restart: 'no'
     depends_on:
       - zipper
-      #- storer
+      - saver
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -31,19 +32,39 @@ services:
     ports:
       - 4587:4587
     read_only: true
-    tmpfs: /tmp
+    tmpfs:
+      - /tmp:mode=1777
     restart: 'no'
-    #depends_on:
-      #- storer
+    depends_on:
+      - saver
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  saver:
+    user: saver
+    image: cyberdojo/saver
+    init: true
+    container_name: test-zipper-saver
+    read_only: true
+    ports:
+      - 4537:4537
+    restart: 'no'
+    depends_on:
+      - mapper
+    tmpfs:
+      - /cyber-dojo:uid=19663,gid=65533
+      - /tmp:uid=19663,gid=65533,mode=1777
 
-  #storer:
-  #  user: storer
-  #  image: cyberdojo/storer
-  #  init: true
-  #  container_name: test-zipper-storer-server
-  #  read_only: true
-  #  tmpfs: /tmp
-  #  volumes:
-  #    - ./test/katas:/usr/src/cyber-dojo/katas:ro
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  mapper:
+    user: nobody
+    image: cyberdojo/mapper
+    init: true
+    container_name: test-zipper-mapper
+    read_only: true
+    ports:
+      - 4547:4547
+    restart: 'no'
+    tmpfs:
+      - /tmp:uid=65534,gid=65533,mode=1777
+    volumes:
+      - ./test/data/porter:/porter:ro
