@@ -12,7 +12,7 @@ services:
     container_name: test-zipper-client
     read_only: true
     tmpfs:
-      - /tmp:mode=1777      
+      - /tmp:mode=1777
     restart: 'no'
     depends_on:
       - zipper
@@ -48,11 +48,12 @@ services:
     ports:
       - 4537:4537
     restart: 'no'
+    tmpfs:
+      - /tmp:mode=1777
+    volumes:
+      - ./test/data/cyber-dojo:/cyber-dojo:rw  
     depends_on:
       - mapper
-    tmpfs:
-      - /cyber-dojo:uid=19663,gid=65533
-      - /tmp:uid=19663,gid=65533,mode=1777
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   mapper:
@@ -65,6 +66,6 @@ services:
       - 4547:4547
     restart: 'no'
     tmpfs:
-      - /tmp:uid=65534,gid=65533,mode=1777
+      - /tmp:mode=1777
     volumes:
       - ./test/data/porter:/porter:ro
