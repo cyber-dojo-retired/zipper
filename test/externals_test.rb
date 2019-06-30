@@ -8,21 +8,21 @@ class ExternalsTest < ZipperTestBase
 
   test '920',
   'default file is ExternalDisk' do
-    assert_equal 'ExternalDisk', disk.class.name
+    assert_equal 'ExternalDisk', externals.disk.class.name
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '3EC',
   'default log is ExternalStdoutLogger' do
-    assert_equal 'ExternalStdoutLogger', log.class.name
+    assert_equal 'ExternalStdoutLogger', externals.log.class.name
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '1B1',
   'default shell is ExternalSheller' do
-    assert_equal 'ExternalSheller', shell.class.name
+    assert_equal 'ExternalSheller', externals.shell.class.name
   end
 
 end

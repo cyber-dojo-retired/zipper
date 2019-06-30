@@ -1,19 +1,28 @@
 require_relative 'hex_mini_test'
 require_relative '../src/externals'
-require_relative '../src/zipper'
 
 class ZipperTestBase < HexMiniTest
 
-  include Externals
+  def initialize(arg)
+    super(arg)
+  end
+
+  def externals
+    @externals ||= Externals.new
+  end
 
   def zipper
-    Zipper.new(self)
+    externals.zipper
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   def sha
     zipper.sha
+  end
+
+  def ready?
+    zipper.ready?
   end
 
   def zip(kata_id)

@@ -76,6 +76,10 @@ class ExternalDiskDirTest < ZipperTestBase
 
   private
 
+  def disk
+    externals.disk
+  end
+
   def dir
     disk[path]
   end
@@ -89,4 +93,3 @@ class ExternalDiskDirTest < ZipperTestBase
   end
 
 end
-

@@ -15,7 +15,7 @@ services:
     restart: 'no'
     depends_on:
       - zipper
-      - storer
+      #- storer
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -33,17 +33,17 @@ services:
     read_only: true
     tmpfs: /tmp
     restart: 'no'
-    depends_on:
-      - storer
+    #depends_on:
+      #- storer
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  storer:
-    user: storer
-    image: cyberdojo/storer
-    init: true
-    container_name: test-zipper-storer-server
-    read_only: true
-    tmpfs: /tmp
-    volumes:
-      - ./test/katas:/usr/src/cyber-dojo/katas:ro
+  #storer:
+  #  user: storer
+  #  image: cyberdojo/storer
+  #  init: true
+  #  container_name: test-zipper-storer-server
+  #  read_only: true
+  #  tmpfs: /tmp
+  #  volumes:
+  #    - ./test/katas:/usr/src/cyber-dojo/katas:ro

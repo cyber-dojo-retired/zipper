@@ -1,13 +1,11 @@
 require_relative 'client_error'
-require_relative 'externals'
-require_relative 'zipper'
 require 'json'
 require 'rack'
 
 class RackDispatcher
 
-  def initialize
-    @zipper = Zipper.new(self)
+  def initialize(externals)
+    @zipper = externals.zipper
     @request_class = Rack::Request
   end
 
@@ -36,12 +34,14 @@ class RackDispatcher
   def validated_name_args(name, body)
     @args = JSON.parse(body)
     args = case name
-      when /^sha$/                  then []
-      when /^zip_tag$/              then [kata_id, avatar_name, tag]
-      when /^zip$/                  then [kata_id]
+      when /^sha$/        then []
+      when /^ready$/      then []
+      when /^zip_tag$/    then [kata_id, avatar_name, tag]
+      when /^zip$/        then [kata_id]
       else
         raise ClientError, 'json:malformed'
     end
+    name += '?' if query?(name)
     [name, args]
   end
 
@@ -68,7 +68,9 @@ class RackDispatcher
     end
   end
 
-  include Externals
+  def query?(name)
+    ['ready'].include?(name)
+  end
 
   def self.request_args(*names)
     names.each { |name|

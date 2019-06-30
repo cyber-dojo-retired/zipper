@@ -118,4 +118,5 @@ wait_until_ready  test-zipper-server 4587
 exit_unless_clean test-zipper-server
 
 wait_till_up test-zipper-client
-wait_till_up test-zipper-storer-server
+
+#wait_till_up test-zipper-storer-server

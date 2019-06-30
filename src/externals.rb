@@ -2,8 +2,13 @@ require_relative 'external_disk'
 require_relative 'external_sheller'
 require_relative 'external_stdout_logger'
 require_relative 'storer_service'
+require_relative 'zipper'
 
-module Externals # mix-in
+class Externals
+
+  def zipper
+    @zipper ||= Zipper.new(self)
+  end
 
   def storer
     @storer ||= StorerService.new(self)

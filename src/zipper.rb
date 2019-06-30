@@ -11,6 +11,10 @@ class Zipper
     ENV['SHA']
   end
 
+  def ready?
+    true
+  end
+
   def zip(kata_id)
     manifest = storer.kata_manifest(kata_id)
     # Creates tgz file in storer's json format
