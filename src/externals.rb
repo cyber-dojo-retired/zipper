@@ -1,8 +1,9 @@
 require_relative 'external_disk'
 require_relative 'external_sheller'
 require_relative 'external_stdout_logger'
-require_relative 'storer_service'
+require_relative 'saver_service'
 require_relative 'zipper'
+require 'net/http'
 
 class Externals
 
@@ -10,8 +11,8 @@ class Externals
     @zipper ||= Zipper.new(self)
   end
 
-  def storer
-    @storer ||= StorerService.new(self)
+  def saver
+    @saver ||= SaverService.new(self)
   end
 
   def shell
@@ -24,6 +25,10 @@ class Externals
 
   def log
     @log ||= ExternalStdoutLogger.new(self)
+  end
+
+  def http
+    @http ||= Net::HTTP
   end
 
 end

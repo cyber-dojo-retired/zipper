@@ -17,7 +17,7 @@ class ZipTagTest < ZipperTestBase
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '2A8',
-  'zip_tag() unzipped content matches storer content' do
+  'zip_tag() unzipped content matches saver content' do
     started_kata_args.each do |kata_id, avatar_name, max_tag|
       (0..max_tag).each do |tag|
         Dir.mktmpdir('downloader') do |tmp_dir|
@@ -29,7 +29,7 @@ class ZipTagTest < ZipperTestBase
           _,status = shell.cd_exec(tmp_dir, "cat #{tgz_filename} | tar xfz -")
           assert_equal 0, status
           tgz_dir = disk[[tmp_dir, kata_id, avatar_name, tag].join('/')]
-          visible_files = storer.tag_visible_files(kata_id, avatar_name, tag)
+          visible_files = saver.tag_visible_files(kata_id, avatar_name, tag)
           visible_files.delete('output')
           visible_files.each do |filename,expected|
             actual = tgz_dir.read(filename)
@@ -39,7 +39,7 @@ class ZipTagTest < ZipperTestBase
           start_point_manifest = tgz_dir.read_json('manifest.json')
           assert_equal visible_files.keys.sort, start_point_manifest['visible_filenames']
 
-          kata_manifest = storer.kata_manifest(kata_id)
+          kata_manifest = saver.kata_manifest(kata_id)
           required = [ 'display_name', 'image_name' ]
           required.each do |key|
             refute_nil start_point_manifest[key]

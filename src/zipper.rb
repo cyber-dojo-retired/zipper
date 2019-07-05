@@ -16,22 +16,22 @@ class Zipper
   end
 
   def zip(kata_id)
-    manifest = storer.kata_manifest(kata_id)
-    # Creates tgz file in storer's json format
+    manifest = saver.kata_manifest(kata_id)
+    # Creates tgz file in saver's json format
     Dir.mktmpdir("zipper") do |tmp_zip_path|
       kata_path = "#{tmp_zip_path}/#{outer(kata_id)}/#{inner(kata_id)}"
       kata_dir = disk[kata_path]
       kata_dir.make
       kata_dir.write_json('manifest.json', manifest)
-      storer.avatars_started(kata_id).each do |avatar_name|
+      saver.avatars_started(kata_id).each do |avatar_name|
         avatar_path = "#{kata_path}/#{avatar_name}"
         avatar_dir = disk[avatar_path]
         avatar_dir.make
 
-        rags = storer.avatar_increments(kata_id, avatar_name)
-        # storer does not store tag0 in each avatar's manifest.
+        rags = saver.avatar_increments(kata_id, avatar_name)
+        # saver does not store tag0 in each avatar's manifest.
         # Retain this form so a tgz file can be copied between
-        # storers on different servers.
+        # savers on different servers.
         rags.shift
         avatar_dir.write_json('increments.json', rags)
 
@@ -39,7 +39,7 @@ class Zipper
           tag_path = "#{avatar_path}/#{tag}"
           tag_dir = disk[tag_path]
           tag_dir.make
-          visible_files = storer.tag_visible_files(kata_id, avatar_name, tag)
+          visible_files = saver.tag_visible_files(kata_id, avatar_name, tag)
           tag_dir.write_json('manifest.json', visible_files)
         end
       end
@@ -53,9 +53,9 @@ class Zipper
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def zip_tag(kata_id, avatar_name, tag)
-    visible_files = storer.tag_visible_files(kata_id, avatar_name, tag)
+    visible_files = saver.tag_visible_files(kata_id, avatar_name, tag)
     visible_files.delete('output')
-    manifest = storer.kata_manifest(kata_id)
+    manifest = saver.kata_manifest(kata_id)
     manifest['visible_filenames'] = visible_files.keys.sort
     %w( visible_files id exercise created ).each do |key|
       manifest.delete(key)
@@ -86,8 +86,8 @@ class Zipper
 
   include IdSplitter
 
-  def storer
-    @externals.storer
+  def saver
+    @externals.saver
   end
 
   def shell
