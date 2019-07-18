@@ -12,6 +12,9 @@ volumes:
       medium: Memory
       sizeLimit: "64Mi"
 
+service:
+  port: 4567
+
 containers:
   - name: zipper
     image: cyberdojo/zipper
@@ -22,18 +25,17 @@ containers:
       - name: zipper-tmp-dir
         mountPath: /tmp
         readOnly: false
-
     resources:
       limits:
-       memory: 32Mi
+        memory: 32Mi
       requests:
-       memory: 32Mi
-    # livenessProbe:
-    #   path: /sha
-    #   port: 4567
-    # readinessProbe:
-    #   path: /ready?
-    #   port: 4567
+        memory: 32Mi
+      livenessProbe:
+        path: /sha
+        port: 4567
+      readinessProbe:
+        path: /ready?
+        port: 4567
 
 envFromSecret: {}
 
@@ -42,6 +44,3 @@ nodeSelector: {}
 affinity: {}
 
 tolerations: []
-
-service:
-  port: 4567
